@@ -16,8 +16,10 @@ services:
     container_name: client1
     image: client:latest
     entrypoint: /client
+    volumes:
+      - ./client/config:/etc/client
     environment:
-      - CLI_ID=1
+      # - CLI_ID=1
       - CLI_SERVER_ADDRESS=server:12345
       - CLI_LOOP_LAPSE=1m2s
       - CLI_LOOP_PERIOD=10s

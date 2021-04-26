@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -25,6 +26,15 @@ func InitConfig() (*viper.Viper, error) {
 	v.BindEnv("loop", "period")
 	v.BindEnv("loop", "lapse")
 
+	// Viper uses the precedence order: env and then config.
+	v.SetConfigName("config") // name of config file (without extension)
+	v.SetConfigType("yaml")
+	v.AddConfigPath("/etc/client") // path to look for the config file in
+	err := v.ReadInConfig()        // Find and read the config file
+	if err != nil {                // Handle errors reading the config file
+		log.Infof("Config file not found, using only env vars")
+	}
+
 	// Parse time.Duration variables and return an error
 	// if those variables cannot be parsed
 	if _, err := time.ParseDuration(v.GetString("loop_lapse")); err != nil {
@@ -34,6 +44,8 @@ func InitConfig() (*viper.Viper, error) {
 	if _, err := time.ParseDuration(v.GetString("loop_period")); err != nil {
 		return nil, errors.Wrapf(err, "Could not parse CLI_LOOP_PERIOD env var as time.Duration.")
 	}
+
+	v.WriteConfigAs("/etc/client/config-used.yml")
 
 	return v, nil
 }
