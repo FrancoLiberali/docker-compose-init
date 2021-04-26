@@ -4,10 +4,12 @@ services:
     container_name: server
     image: server:latest
     entrypoint: python3 /main.py
+    volumes:
+      - ./server/config:/etc/server
     environment:
       - PYTHONUNBUFFERED=1
-      - SERVER_IP=server
-      - SERVER_PORT=12345
+      # - SERVER_IP=server
+      # - SERVER_PORT=12345
       - SERVER_LISTEN_BACKLOG=5
     networks:
       - testing_net
@@ -20,7 +22,8 @@ services:
       - ./client/config:/etc/client
     environment:
       # - CLI_ID=1
-      - CLI_SERVER_ADDRESS=server:12345
+      # - CLI_SERVER_ADDRESS=server:12345
+      - CLI_SERVER_ADDRESS=server:12346
       - CLI_LOOP_LAPSE=1m2s
       - CLI_LOOP_PERIOD=10s
     networks:

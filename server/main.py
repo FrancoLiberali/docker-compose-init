@@ -3,8 +3,10 @@
 import os
 import time
 import logging
+import yaml
 from common.server import Server
 
+CONFIG_FILE_PATH = '/etc/server/config.yml'
 
 def parse_config_params():
 	""" Parse env variables to find program config params
@@ -16,15 +18,37 @@ def parse_config_params():
 	returns a map with the env variables
 	"""
 	config_params = {}
+	config_from_file = {}
 	try:
-		config_params["port"] = int(os.environ["SERVER_PORT"])
-		config_params["listen_backlog"] = int(os.environ["SERVER_LISTEN_BACKLOG"])
-	except KeyError as e:
-		raise KeyError("Key was not found. Error: {} .Aborting server".format(e))
-	except ValueError as e:
-		raise ValueError("Key could not be parsed. Error: {}. Aborting server".format(e))
+		with open(CONFIG_FILE_PATH) as config_file:
+			# The FullLoader parameter handles the conversion from YAML
+			# scalar values to Python the dictionary format
+			config_from_file = yaml.full_load(config_file) or {}
+	except FileNotFoundError:
+		logging.info("Config file not found, using only env vars")
+
+	config_params["port"] = get_config_param("SERVER_PORT", config_from_file)
+	config_params["listen_backlog"] = get_config_param("SERVER_LISTEN_BACKLOG", config_from_file)
+
+	with open('/etc/server/config_used.yml', "w+") as config_used_file:
+		yaml.dump(config_from_file, config_used_file)
 
 	return config_params
+
+def get_config_param(key, config_from_file):
+	try:
+		return get_int(os.environ[key])
+	except KeyError:
+		try:
+			return get_int(config_from_file[key])
+		except KeyError as e:
+			raise KeyError("Key was not found neither in EnvVars nor config file. Error: {} .Aborting server".format(e))
+
+def get_int(value):
+	try:
+		return int(value)
+	except ValueError as e:
+		raise ValueError("Key could not be parsed. Error: {}. Aborting server".format(e))
 
 def main():
 	initialize_log()
