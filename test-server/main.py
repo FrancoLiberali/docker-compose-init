@@ -23,10 +23,10 @@ for i in range(0, tests_amount):
 		f"echo '{random_string}' | netcat server {server_port}")
 	# access the stream from command line to get the server response
 	output = stream.read().strip('\n')
-	
+
 	expected_result = f"Your Message has been received: b'{random_string}'"
 	assert output == expected_result, f"output should be '{expected_result}' but it is '{output}'"
-	
+
 	print(f"Test {i + 1} of {tests_amount} passed successfully")
 	time.sleep(loop_period)
 
