@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 services:
   server:
     container_name: server
@@ -8,7 +8,8 @@ services:
       - PYTHONUNBUFFERED=1
       - SERVER_PORT=12345
       - SERVER_LISTEN_BACKLOG=5
-    network_mode: host
+    networks:
+      - testing_net
 
   client1:
     container_name: client1
@@ -16,9 +17,18 @@ services:
     entrypoint: /client
     environment:
       - CLI_ID=1
-      - CLI_SERVER_ADDRESS=localhost:12345
+      - CLI_SERVER_ADDRESS=server:12345
       - CLI_LOOP_LAPSE=1m2s
       - CLI_LOOP_PERIOD=10s
-    network_mode: host
+    networks:
+      - testing_net
     depends_on:
       - server
+
+networks:
+  testing_net:
+    name: testing_net
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.25.125.0/24

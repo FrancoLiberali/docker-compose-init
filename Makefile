@@ -32,3 +32,8 @@ docker-compose-down:
 docker-compose-logs:
 	docker-compose -f docker-compose-dev.yaml logs -f
 .PHONY: docker-compose-logs
+
+test-server:
+	docker-compose -f test-server/docker-compose.yaml up --build
+.PHONY: test-server
+

@@ -1,0 +1,17 @@
+version: '3'
+services:
+  test:
+    container_name: test
+    build: .
+    entrypoint: python3 /main.py
+    environment:
+      - SERVER_PORT=12345
+      - TESTS_AMOUNT=5
+      - LOOP_PERIOD=2
+    networks:
+      - testing_net
+
+networks:
+   testing_net:
+      external:
+         name: testing_net
